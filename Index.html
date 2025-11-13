@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrace - Talentová soutěž</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+    }
+    
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 28px;
+      text-align: center;
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    .form-group {
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+    }
+    
+    .form-group.hidden {
+      display: none;
+    }
+    
+    label {
+      display: block;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    
+    .required {
+      color: #e74c3c;
+    }
+    
+    input[type="email"],
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+    
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    select {
+      cursor: pointer;
+      background-color: white;
+    }
+    
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .radio-option {
+      flex: 1;
+    }
+    
+    .radio-option input[type="radio"] {
+      display: none;
+    }
+    
+    .radio-option label {
+      display: block;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      background: white;
+    }
+    
+    .radio-option input[type="radio"]:checked + label {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+    }
+    
+    .radio-option label:hover {
+      border-color: #667eea;
+    }
+    
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .message {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .message.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+    
+    .message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+    
+    .helper-text {
+      font-size: 13px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎭 Talentová soutěž</h1>
+    <p class="subtitle">Registrační formulář</p>
+    
+    <div id="message" class="message"></div>
+    
+    <form id="registrationForm">
+      <div class="form-group">
+        <label for="email">
+          Váš email <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          required 
+          placeholder="vas.email@example.com"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="zucastneSe">
+          Zúčastníte se této akce? <span class="required">*</span>
+        </label>
+        <select id="zucastneSe" name="zucastneSe" required>
+          <option value="">-- Vyberte možnost --</option>
+          <option value="Ano">Ano, zúčastníme se</option>
+          <option value="Ne">Ne, nezúčastníme se</option>
+        </select>
+      </div>
+      
+      <div class="form-group" id="jmenoDiteteGroup">
+        <label for="jmenoDitete">
+          Jméno a příjmení vystupujícího dítěte <span class="required">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="jmenoDitete" 
+          name="jmenoDitete" 
+          placeholder="napište jméno a příjmení dítěte"
+        >
+        <div class="helper-text">Zadejte celé jméno dítěte</div>
+      </div>
+      
+      <div class="form-group" id="doprovodGroup">
+        <label>
+          Kolik osob bude tvořit doprovod? <span class="required">*</span>
+        </label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="doprovod0" name="pocetDoprovod" value="0">
+            <label for="doprovod0">0</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="doprovod1" name="pocetDoprovod" value="1" checked>
+            <label for="doprovod1">1</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="doprovod2" name="pocetDoprovod" value="2">
+            <label for="doprovod2">2</label>
+          </div>
+        </div>
+        <div class="helper-text">Rodiče, prarodiče nebo další doprovod</div>
+      </div>
+      
+      <button type="submit" id="submitBtn">
+        Odeslat registraci
+      </button>
+    </form>
+  </div>
+  
+  <script>
+    // !!! DŮLEŽITÉ: DOPLŇ SVOU APPS SCRIPT URL ZDE !!!
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwu9AdTp_bXS-_MIsdG2ga52sXS21MKZGxRieiZU2JXHYz1VGtDgOhJzNdCgIfCwnvY/exec';
+    
+    document.getElementById('zucastneSe').addEventListener('change', function() {
+      const jmenoDiteteGroup = document.getElementById('jmenoDiteteGroup');
+      const doprovodGroup = document.getElementById('doprovodGroup');
+      const jmenoDiteteInput = document.getElementById('jmenoDitete');
+      
+      if (this.value === 'Ne') {
+        jmenoDiteteGroup.classList.add('hidden');
+        doprovodGroup.classList.add('hidden');
+        jmenoDiteteInput.removeAttribute('required');
+      } else if (this.value === 'Ano') {
+        jmenoDiteteGroup.classList.remove('hidden');
+        doprovodGroup.classList.remove('hidden');
+        jmenoDiteteInput.setAttribute('required', 'required');
+      }
+    });
+    
+    document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const messageDiv = document.getElementById('message');
+      
+      let pocetDoprovod = "1";
+      const doprovodRadios = document.getElementsByName('pocetDoprovod');
+      for (let radio of doprovodRadios) {
+        if (radio.checked) {
+          pocetDoprovod = radio.value;
+          break;
+        }
+      }
+      
+      const zucastneSe = document.getElementById('zucastneSe').value;
+      
+      const formData = {
+        email: document.getElementById('email').value,
+        zucastneSe: zucastneSe,
+        jmenoDitete: zucastneSe === 'Ano' ? document.getElementById('jmenoDitete').value : '',
+        pocetDoprovod: zucastneSe === 'Ano' ? pocetDoprovod : ''
+      };
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Odesílám...';
+      messageDiv.style.display = 'none';
+      
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+        
+        // no-cors mode vrací prázdnou odpověď, ale data se pošlou
+        messageDiv.className = 'message success';
+        if (zucastneSe === 'Ano') {
+          messageDiv.textContent = 'Registrace úspěšně dokončena! Potvrzení jsme vám zaslali emailem.';
+        } else {
+          messageDiv.textContent = 'Vaše odpověď byla zaznamenána, děkujeme.';
+        }
+        messageDiv.style.display = 'block';
+        document.getElementById('registrationForm').reset();
+        document.getElementById('jmenoDiteteGroup').classList.remove('hidden');
+        document.getElementById('doprovodGroup').classList.remove('hidden');
+        document.getElementById('jmenoDitete').setAttribute('required', 'required');
+        document.getElementById('doprovod1').checked = true;
+        
+      } catch (error) {
+        messageDiv.className = 'message error';
+        messageDiv.textContent = 'Nastala chyba při odesílání. Zkuste to prosím znovu.';
+        messageDiv.style.display = 'block';
+      }
+      
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Odeslat registraci';
+    });
+  </script>
+</body>
+</html>
