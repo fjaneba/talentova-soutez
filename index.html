@@ -189,7 +189,7 @@
 <body>
   <div class="container">
     <h1>🎭 Talentová soutěž</h1>
-    <p class="subtitle">Registrační formulář</p>
+    <p class="subtitle">Registrační formulář pro diváky</p>
     
     <div id="message" class="message"></div>
     
@@ -231,9 +231,24 @@
         <div class="helper-text">Zadejte celé jméno dítěte</div>
       </div>
       
+      <div class="form-group" id="skolaGroup">
+        <label for="skola">
+          Kterou ZŠ dítě zastupuje? <span class="required">*</span>
+        </label>
+        <select id="skola" name="skola">
+          <option value="">-- Vyberte školu --</option>
+          <option value="Krakovany">Krakovany</option>
+          <option value="Týnec nad Labem">Týnec nad Labem</option>
+          <option value="Žiželice">Žiželice</option>
+          <option value="Starý Kolín">Starý Kolín</option>
+          <option value="Býchory">Býchory</option>
+          <option value="Veltruby">Veltruby</option>
+        </select>
+      </div>
+      
       <div class="form-group" id="doprovodGroup">
         <label>
-          Kolik osob bude tvořit doprovod? <span class="required">*</span>
+          Vyberte počet diváků (max 2 osoby na vystupujícího) <span class="required">*</span>
         </label>
         <div class="radio-group">
           <div class="radio-option">
@@ -260,21 +275,27 @@
   
   <script>
     // !!! DŮLEŽITÉ: DOPLŇ SVOU APPS SCRIPT URL ZDE !!!
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwu9AdTp_bXS-_MIsdG2ga52sXS21MKZGxRieiZU2JXHYz1VGtDgOhJzNdCgIfCwnvY/exec';
+    const SCRIPT_URL = 'SEM_DOPLŇ_SVOU_APPS_SCRIPT_URL';
     
     document.getElementById('zucastneSe').addEventListener('change', function() {
       const jmenoDiteteGroup = document.getElementById('jmenoDiteteGroup');
+      const skolaGroup = document.getElementById('skolaGroup');
       const doprovodGroup = document.getElementById('doprovodGroup');
       const jmenoDiteteInput = document.getElementById('jmenoDitete');
+      const skolaSelect = document.getElementById('skola');
       
       if (this.value === 'Ne') {
         jmenoDiteteGroup.classList.add('hidden');
+        skolaGroup.classList.add('hidden');
         doprovodGroup.classList.add('hidden');
         jmenoDiteteInput.removeAttribute('required');
+        skolaSelect.removeAttribute('required');
       } else if (this.value === 'Ano') {
         jmenoDiteteGroup.classList.remove('hidden');
+        skolaGroup.classList.remove('hidden');
         doprovodGroup.classList.remove('hidden');
         jmenoDiteteInput.setAttribute('required', 'required');
+        skolaSelect.setAttribute('required', 'required');
       }
     });
     
@@ -299,6 +320,7 @@
         email: document.getElementById('email').value,
         zucastneSe: zucastneSe,
         jmenoDitete: zucastneSe === 'Ano' ? document.getElementById('jmenoDitete').value : '',
+        skola: zucastneSe === 'Ano' ? document.getElementById('skola').value : '',
         pocetDoprovod: zucastneSe === 'Ano' ? pocetDoprovod : ''
       };
       
@@ -326,8 +348,10 @@
         messageDiv.style.display = 'block';
         document.getElementById('registrationForm').reset();
         document.getElementById('jmenoDiteteGroup').classList.remove('hidden');
+        document.getElementById('skolaGroup').classList.remove('hidden');
         document.getElementById('doprovodGroup').classList.remove('hidden');
         document.getElementById('jmenoDitete').setAttribute('required', 'required');
+        document.getElementById('skola').setAttribute('required', 'required');
         document.getElementById('doprovod1').checked = true;
         
       } catch (error) {
