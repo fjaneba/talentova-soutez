@@ -169,10 +169,40 @@
       border: 2px solid #f5c6cb;
     }
     
+    .message.warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 2px solid #ffeaa7;
+    }
+    
     .helper-text {
       font-size: 13px;
       color: #666;
       margin-top: 5px;
+    }
+
+    /* Styl pro uzavřenou registraci */
+    .closed-notice {
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .closed-notice .icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+
+    .closed-notice h2 {
+      color: #667eea;
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    .closed-notice p {
+      color: #666;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 10px;
     }
 
     @media (max-width: 600px) {
@@ -192,6 +222,15 @@
     <p class="subtitle">Registrační formulář pro diváky</p>
     
     <div id="message" class="message"></div>
+    
+    <!-- Hláška o uzavření registrace (zobrazí se pokud je uzavřeno) -->
+    <div id="closedNotice" class="closed-notice" style="display: none;">
+      <div class="icon">🔒</div>
+      <h2>Registrace byla uzavřena</h2>
+      <p>Děkujeme za váš zájem o Talentovou soutěž.</p>
+      <p>Kapacita akce byla naplněna a registrace je uzavřena.</p>
+      <p style="margin-top: 20px; font-weight: 600;">Těšíme se na setkání s registrovanými účastníky!</p>
+    </div>
     
     <form id="registrationForm">
       <div class="form-group">
@@ -274,8 +313,34 @@
   </div>
   
   <script>
-    // !!! DŮLEŽITÉ: DOPLŇ SVOU APPS SCRIPT URL ZDE !!!
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwu9AdTp_bXS-_MIsdG2ga52sXS21MKZGxRieiZU2JXHYz1VGtDgOhJzNdCgIfCwnvY/exec';
+    
+    // Při načtení stránky zkontroluj, jestli je registrace otevřená
+    window.addEventListener('load', checkRegistrationStatus);
+    
+    async function checkRegistrationStatus() {
+      try {
+        // Pošli testovací požadavek pro zjištění stavu
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ test: true })
+        });
+        
+        const data = await response.json();
+        
+        if (data.closed === true) {
+          // Registrace je uzavřená - skryj formulář a zobraz hlášku
+          document.getElementById('registrationForm').style.display = 'none';
+          document.getElementById('closedNotice').style.display = 'block';
+        }
+      } catch (error) {
+        // Pokud selže kontrola, zobraz formulář (bezpečnější varianta)
+        console.log('Kontrola stavu selhala, zobrazuji formulář');
+      }
+    }
     
     document.getElementById('zucastneSe').addEventListener('change', function() {
       const jmenoDiteteGroup = document.getElementById('jmenoDiteteGroup');
@@ -331,32 +396,43 @@
       try {
         const response = await fetch(SCRIPT_URL, {
           method: 'POST',
-          mode: 'no-cors',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(formData)
         });
         
-        // no-cors mode vrací prázdnou odpověď, ale data se pošlou
-        messageDiv.className = 'message success';
-        if (zucastneSe === 'Ano') {
-          messageDiv.textContent = 'Registrace úspěšně dokončena! Potvrzení jsme vám zaslali emailem.';
+        const data = await response.json();
+        
+        // Kontrola jestli nebyla registrace mezitím uzavřena
+        if (data.closed === true) {
+          messageDiv.className = 'message warning';
+          messageDiv.textContent = 'Registrace již byla uzavřena. Děkujeme za váš zájem.';
+          messageDiv.style.display = 'block';
+          
+          // Po 2 sekundách skryj formulář a zobraz uzavřenou hlášku
+          setTimeout(() => {
+            document.getElementById('registrationForm').style.display = 'none';
+            document.getElementById('closedNotice').style.display = 'block';
+          }, 2000);
+        } else if (data.success) {
+          messageDiv.className = 'message success';
+          messageDiv.textContent = data.message;
+          messageDiv.style.display = 'block';
+          document.getElementById('registrationForm').reset();
+          document.getElementById('jmenoDiteteGroup').classList.remove('hidden');
+          document.getElementById('skolaGroup').classList.remove('hidden');
+          document.getElementById('doprovodGroup').classList.remove('hidden');
+          document.getElementById('jmenoDitete').setAttribute('required', 'required');
+          document.getElementById('skola').setAttribute('required', 'required');
+          document.getElementById('doprovod1').checked = true;
         } else {
-          messageDiv.textContent = 'Vaše odpověď byla zaznamenána, děkujeme.';
+          throw new Error(data.message || 'Neznámá chyba');
         }
-        messageDiv.style.display = 'block';
-        document.getElementById('registrationForm').reset();
-        document.getElementById('jmenoDiteteGroup').classList.remove('hidden');
-        document.getElementById('skolaGroup').classList.remove('hidden');
-        document.getElementById('doprovodGroup').classList.remove('hidden');
-        document.getElementById('jmenoDitete').setAttribute('required', 'required');
-        document.getElementById('skola').setAttribute('required', 'required');
-        document.getElementById('doprovod1').checked = true;
         
       } catch (error) {
         messageDiv.className = 'message error';
-        messageDiv.textContent = 'Nastala chyba při odesílání. Zkuste to prosím znovu.';
+        messageDiv.textContent = 'Nastala chyba při odesílání: ' + error.message;
         messageDiv.style.display = 'block';
       }
       
